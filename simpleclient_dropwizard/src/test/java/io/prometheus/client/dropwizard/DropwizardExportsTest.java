@@ -1,17 +1,15 @@
 package io.prometheus.client.dropwizard;
 
 
-import com.codahale.metrics.*;
+import io.dropwizard.metrics5.*;
+import io.dropwizard.metrics5.Timer;
 import io.prometheus.client.Collector;
 import io.prometheus.client.CollectorRegistry;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
@@ -147,12 +145,16 @@ public class DropwizardExportsTest {
 
     @Test
     public void testSanitizeMetricName() {
-        assertEquals("Foo_Bar_metric_mame", DropwizardExports.sanitizeMetricName("Foo.Bar-metric,mame"));
+        MetricName metricName = new MetricName("Foo.Bar-metric,mame", new HashMap<String, String>());
+
+        assertEquals("Foo_Bar_metric_mame", DropwizardExports.sanitizeMetricName(metricName));
     }
 
     @Test
     public void testSanitizeMetricNameStartingWithDigit() {
-        assertEquals("_42Foo_Bar_metric_mame", DropwizardExports.sanitizeMetricName("42Foo.Bar-metric,mame"));
+        MetricName metricName = new MetricName("42Foo.Bar-metric,mame", new HashMap<String, String>());
+
+        assertEquals("_42Foo_Bar_metric_mame", DropwizardExports.sanitizeMetricName(metricName));
     }
 
     @Test
@@ -181,16 +183,16 @@ public class DropwizardExportsTest {
         assertTrue(elements.keySet().contains("my_application_namedGauge1"));
 
         assertThat(elements.get("my_application_namedTimer1").help,
-                is("Generated from Dropwizard metric import (metric=my.application.namedTimer1, type=com.codahale.metrics.Timer)"));
+                is("Generated from Dropwizard metric import (metric=my.application.namedTimer1, type=io.dropwizard.metrics5.Timer)"));
 
         assertThat(elements.get("my_application_namedCounter1").help,
-                is("Generated from Dropwizard metric import (metric=my.application.namedCounter1, type=com.codahale.metrics.Counter)"));
+                is("Generated from Dropwizard metric import (metric=my.application.namedCounter1, type=io.dropwizard.metrics5.Counter)"));
 
         assertThat(elements.get("my_application_namedMeter1_total").help,
-                is("Generated from Dropwizard metric import (metric=my.application.namedMeter1, type=com.codahale.metrics.Meter)"));
+                is("Generated from Dropwizard metric import (metric=my.application.namedMeter1, type=io.dropwizard.metrics5.Meter)"));
 
         assertThat(elements.get("my_application_namedHistogram1").help,
-                is("Generated from Dropwizard metric import (metric=my.application.namedHistogram1, type=com.codahale.metrics.Histogram)"));
+                is("Generated from Dropwizard metric import (metric=my.application.namedHistogram1, type=io.dropwizard.metrics5.Histogram)"));
 
         assertThat(elements.get("my_application_namedGauge1").help,
                 is("Generated from Dropwizard metric import (metric=my.application.namedGauge1, type=io.prometheus.client.dropwizard.DropwizardExportsTest$ExampleDoubleGauge)"));
